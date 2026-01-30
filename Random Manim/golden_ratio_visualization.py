@@ -2,40 +2,28 @@ from manim import *
 
 class GoldenSpiralPolished(MovingCameraScene):
     def construct(self):
-        # --- KONSIGURASI & SETUP ---
         fib_series = [1, 1, 2, 3, 5, 8, 13, 21, 34]
         colors = [TEAL_D, TEAL_C, BLUE_D, BLUE_C, PURPLE_D, PURPLE_C, MAROON_D, RED_C, ORANGE]
 
         full_spiral_group = VGroup()
         squares_group = VGroup()
         arcs_group = VGroup()
-
-        # Judul (Menggunakan Text agar tidak butuh LaTeX)
         title = Text("Golden Ratio", font_size=48)
         title.set_color_by_gradient(BLUE, GOLD)
         title.to_edge(UP)
         self.play(Write(title))
         self.wait(1)
         self.play(FadeOut(title))
-
-        # --- PEMBUATAN OBJEK ---
-
         prev_square = None
         direction_vectors = [RIGHT, UP, LEFT, DOWN]
         alignment_directions = [DOWN, RIGHT, UP, LEFT]
 
         for i, n in enumerate(fib_series):
-            # 1. Setup Warna
             color_fill = colors[i % len(colors)]
-            # --- BARIS PERBAIKAN: Menghapus .copy() dan menggunakan .lighter() ---
             color_stroke = color_fill.lighter(0.5)
-
-            # 2. Buat Persegi
             square = Square(side_length=n)
             square.set_fill(color_fill, opacity=0.3)
             square.set_stroke(color_stroke, width=2)
-
-            # 3. Posisi Persegi
             if prev_square is not None:
                 curr_dir = direction_vectors[i % 4]
                 square.next_to(prev_square, curr_dir, buff=0)
@@ -45,13 +33,10 @@ class GoldenSpiralPolished(MovingCameraScene):
             else:
                 square.move_to(ORIGIN)
 
-            # 4. Buat Label Angka
             font_scale = 0.4 * n if n < 3 else 0.8
             label = Text(str(n), font="Arial", weight=BOLD).scale(font_scale)
             label.move_to(square.get_center())
             label.set_color(WHITE)
-
-            # 5. Buat Arc
             start_angle = (i * PI / 2) + PI
 
             arc = Arc(
@@ -62,17 +47,13 @@ class GoldenSpiralPolished(MovingCameraScene):
                 color=GOLD_E,
                 stroke_width=6
             )
-            arc.set_sheen(0.2, direction=UR)
 
-            # 6. Grouping
+            arc.set_sheen(0.2, direction=UR)
             square_w_label = VGroup(square, label)
             squares_group.add(square_w_label)
             arcs_group.add(arc)
             full_spiral_group.add(square_w_label, arc)
-
             prev_square = square
-
-        # --- ANIMASI ---
 
         full_spiral_group.move_to(ORIGIN)
         self.camera.frame.scale(0.5)
@@ -94,7 +75,6 @@ class GoldenSpiralPolished(MovingCameraScene):
 
         self.wait(0.5)
 
-        # Tampilkan nilai Phi
         phi_text = Text("Phi ≈ 1.61803...", color=GOLD, font="Arial").scale(1.2)
         phi_text.next_to(full_spiral_group, DOWN, buff=1)
 
