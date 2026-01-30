@@ -1,8 +1,4 @@
 from manim import *
-
-# --- FIX UNTUK WINDOWS PATH ERROR ---
-# Error 'partial_movie_file_list.txt' terjadi karena tanda petik (') di nama folder "Hilbert's".
-# Baris ini memaksa output ke folder lokal yang aman "./manim_out" untuk menghindari error tersebut.
 config.media_dir = "./manim_out"
 
 class HilbertHotelHook(Scene):
