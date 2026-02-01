@@ -1,8 +1,7 @@
 from manim import *
 
-# KONSTANTA WARNA
-COLOR_SANGWOO = BLUE_E   # Player A (Sender)
-COLOR_ALI = GREEN_E      # Player B (Receiver)
+COLOR_SANGWOO = BLUE_E
+COLOR_ALI = GREEN_E
 COLOR_SIGNAL_NEUTRAL = WHITE
 COLOR_SIGNAL_TRAP = RED
 COLOR_TREE_PATH = GREY
@@ -10,7 +9,6 @@ COLOR_TEXT = WHITE
 
 class BluffingSignaling(Scene):
     def construct(self):
-        # --- SETUP: SANGWOO & ALI (VO 1: Intro ~15s) ---
         sangwoo = Circle(radius=0.5, color=COLOR_SANGWOO, fill_opacity=0.5).to_corner(UL).shift(DOWN*0.5, RIGHT*1)
         ali = Circle(radius=0.5, color=COLOR_ALI, fill_opacity=0.5).to_corner(UR).shift(DOWN*0.5, LEFT*1)
 
@@ -24,7 +22,6 @@ class BluffingSignaling(Scene):
         )
         self.wait(6)
 
-        # --- LEVEL 1: MENERIMA SINYAL (VO 2: Cheap Talk ~12s) ---
         signal = Circle(radius=0.15, color=COLOR_SIGNAL_NEUTRAL, fill_opacity=1)
         signal.move_to(sangwoo.get_center())
 
@@ -36,7 +33,6 @@ class BluffingSignaling(Scene):
             rate_func=lambda t: t * (2 - t)
         )
 
-        # Muncul Node Awal (Root of Decision Tree)
         tree_origin = UP * 2
         root_node = Dot(point=tree_origin, color=COLOR_SIGNAL_NEUTRAL, radius=0.15)
         label_root = Text("Signal Received (s)", font_size=20).next_to(root_node, LEFT)
@@ -48,19 +44,14 @@ class BluffingSignaling(Scene):
         )
         self.wait(3)
 
-        # --- LEVEL 2: UPDATE PROBABILITAS (VO 3: Bayesian Update ~12s) ---
-        # Kita buat tampilan update probabilitas lebih teknis (parameter mu)
-
         mu_label = MathTex(r"\mu(s) = P(\text{Truth}|s)").scale(0.8).next_to(root_node, RIGHT, buff=0.5)
 
-        # Bar chart kecil untuk visualisasi mu
         bar_bg = Rectangle(height=1.0, width=0.3, color=WHITE).next_to(mu_label, RIGHT, buff=0.2)
         bar_fill = Rectangle(height=0.5, width=0.3, color=GREY, fill_opacity=0.8).move_to(bar_bg.get_bottom(), aligned_edge=DOWN)
         val_label = MathTex(r"0.5").scale(0.6).next_to(bar_bg, DOWN)
 
         self.play(Write(mu_label), Create(bar_bg), FadeIn(bar_fill), Write(val_label), run_time=2)
 
-        # Update: Keyakinan naik menjadi 0.99
         bar_fill_high = Rectangle(height=0.99, width=0.3, color=GREEN, fill_opacity=0.8).move_to(bar_bg.get_bottom(), aligned_edge=DOWN)
         val_label_new = MathTex(r"0.99").scale(0.6).next_to(bar_bg, DOWN).set_color(GREEN)
 
@@ -71,27 +62,18 @@ class BluffingSignaling(Scene):
         )
         self.wait(2)
 
-        # --- LEVEL 3: TECHNICAL DECISION TREE (VO 4: Collapse ~10s) ---
-        # Menggambar pohon keputusan bercabang sesuai referensi gambar teknik
-
-        # Setup posisi cabang
         left_branch_end = tree_origin + DOWN * 3 + LEFT * 3
         right_branch_end = tree_origin + DOWN * 3 + RIGHT * 3
 
-        # Garis Cabang
         line_trust = Line(root_node.get_center(), left_branch_end, color=GREEN)
         line_verify = Line(root_node.get_center(), right_branch_end, color=GREY)
 
-        # Node Daun (Leaf Nodes)
         node_trust = Dot(left_branch_end, color=GREEN, radius=0.15)
         node_verify = Dot(right_branch_end, color=GREY, radius=0.15)
 
-        # Label Aksi pada Cabang
         lbl_action_trust = Text("Trust", font_size=18).next_to(line_trust.get_center(), LEFT, buff=0.2).rotate(30*DEGREES)
         lbl_action_verify = Text("Verify", font_size=18).next_to(line_verify.get_center(), RIGHT, buff=0.2).rotate(-30*DEGREES)
 
-        # Label Payoff (Matematis)
-        # Format: (Ali, Sangwoo)
         payoff_trust = MathTex(r"(Win, Win)").scale(0.7).next_to(node_trust, DOWN)
         payoff_verify = MathTex(r"(Safe, Safe)").scale(0.7).next_to(node_verify, DOWN)
 
@@ -103,24 +85,14 @@ class BluffingSignaling(Scene):
             run_time=2
         )
 
-        # Ali (token) memilih jalur "Trust" karena mu tinggi
         ali_token = ali.copy().scale(0.3).set_fill(opacity=1)
         self.play(ali_token.animate.move_to(root_node.get_center()), run_time=0.5)
-
-        # Bergerak ke kiri (Trust)
         self.play(ali_token.animate.move_to(node_trust.get_center()), run_time=1.5)
-
         self.wait(0.5)
-
-        # --- THE REVEAL: TRAP! ---
-
-        # 1. Sinyal asli berubah merah
         self.play(signal.animate.set_color(COLOR_SIGNAL_TRAP), run_time=1)
 
-        # 2. Update Payoff menjadi negatif tak hingga (Death)
         payoff_death = MathTex(r"(-\infty, Win)").scale(0.8).next_to(node_trust, DOWN).set_color(RED)
 
-        # 3. Visualisasi Kehancuran
         trap_text = Text("FALSE SIGNAL!", color=RED, font_size=36, weight=BOLD).next_to(root_node, UP, buff=0.5)
 
         self.play(
@@ -128,7 +100,7 @@ class BluffingSignaling(Scene):
             node_trust.animate.scale(2).set_color(RED),
             line_trust.animate.set_color(RED),
             root_node.animate.set_color(RED),
-            bar_fill.animate.set_color(RED), # Mu logic collapses
+            bar_fill.animate.set_color(RED),
             val_label.animate.set_color(RED),
             Flash(node_trust, color=RED, line_length=0.5, num_lines=10),
             Write(trap_text),
@@ -136,9 +108,6 @@ class BluffingSignaling(Scene):
         )
 
         self.wait(2)
-
-        # --- FADE OUT ALL ---
-        # Membersihkan layar di akhir scene
         self.play(
             *[FadeOut(mob) for mob in self.mobjects],
             run_time=1.5

@@ -2,15 +2,11 @@ from manim import *
 
 class Scene02(Scene):
     def construct(self):
-        # --- PART 1: THE PAYOFF MATRIX (Bayesian Game) ---
-
-        # 1. Setup Title
         title = Text("INFORMATION ASYMMETRY", font_size=36, weight=BOLD)
         title.to_edge(UP)
         self.play(Write(title))
         self.wait(1)
 
-        # 2. Define Matrix Content
         matrix_data = [
             ["W/L", "L/W"],
             ["L/W", "W/L"]
@@ -28,7 +24,6 @@ class Scene02(Scene):
             element_to_mobject_config={"font_size": 24}
         ).scale(0.7)
 
-        # Label Players
         player_a_label = Text("Player A", font_size=28, color=BLUE).next_to(payoff_table, UP)
         player_b_label = Text("Player B", font_size=28, color=RED).next_to(payoff_table, LEFT).rotate(PI/2)
 
@@ -39,7 +34,6 @@ class Scene02(Scene):
         )
         self.wait(1)
 
-        # 3. Highlight Cells
         cell_1 = payoff_table.get_cell((1,1))
         cell_2 = payoff_table.get_cell((2,2))
 
@@ -50,13 +44,11 @@ class Scene02(Scene):
         self.play(Transform(highlight_box, SurroundingRectangle(cell_2, color=YELLOW, buff=0.1)))
         self.wait(10)
 
-        # Text overlay
         bayesian_text = Tex(r"Bayesian Game: \\ Beliefs vs Strategies", color=YELLOW, font_size=32)
         bayesian_text.to_corner(DR)
         self.play(Write(bayesian_text))
         self.wait(6)
 
-        # Cleanup Part 1
         self.play(
             FadeOut(payoff_table),
             FadeOut(player_a_label),
@@ -65,18 +57,12 @@ class Scene02(Scene):
             FadeOut(bayesian_text)
         )
 
-        # --- PART 2: PRIOR PROBABILITY ---
-
-        # 1. Visualisasi 50% Chance
         prob_text = MathTex(r"P(\text{Correct}) = 0.5", font_size=48)
         prob_text.shift(UP*2)
         self.play(Write(prob_text), run_time = 1.5)
 
-        # --- PERBAIKAN DI SINI (Mengganti outer_radius dengan radius) ---
         chart = VGroup()
-        # Sektor Merah (Kalah/Salah)
         sector_fail = Sector(radius=1.5, start_angle=0, angle=PI, color=RED, fill_opacity=0.8, stroke_color=WHITE, stroke_width=2)
-        # Sektor Hijau (Menang/Benar)
         sector_win = Sector(radius=1.5, start_angle=PI, angle=PI, color=GREEN, fill_opacity=0.8, stroke_color=WHITE, stroke_width=2)
 
         chart.add(sector_fail, sector_win)
@@ -88,31 +74,23 @@ class Scene02(Scene):
         self.play(Write(lbl_random), run_time=1.5)
         self.wait(1)
 
-        # Menambahkan teks "Ideal vs Reality"
         reality_text = Text("Only true if purely random!", color=RED, font_size=28).next_to(chart, DOWN)
         self.play(Write(reality_text))
         self.wait(0.9)
 
-        # Cleanup Part 2
         self.play(FadeOut(prob_text), FadeOut(chart), FadeOut(reality_text), FadeOut(lbl_random))
 
-        # --- PART 3: PATTERN RECOGNITION (MARBLES) ---
-
-        # 1. Setup Marble Stacks
         pattern_title = Text("Human Pattern Analysis", font_size=32).to_edge(UP)
         self.play(Transform(title, pattern_title))
 
-        # Fungsi helper untuk membuat kelereng
         def get_marbles(count, color=WHITE):
             marbles = VGroup()
             for i in range(count):
                 m = Circle(radius=0.15, color=color, fill_opacity=0.8)
-                # Stack them vertically
                 m.move_to(DOWN * 2 + UP * i * 0.35)
                 marbles.add(m)
             return marbles
 
-        # Animasi 1: Random (Awal permainan)
         counts_random = [3, 5, 2, 7, 1]
 
         label_state = Text("State: Random", color=GREEN, font_size=36).next_to(title, DOWN)
@@ -124,12 +102,10 @@ class Scene02(Scene):
             self.wait(0.4)
             self.remove(new_stack)
 
-        # Animasi 2: Panic/Defensive (Pola terbaca)
         self.play(Transform(label_state, Text("State: Panic (Patterned)", color=RED, font_size=36).next_to(title, DOWN)))
 
-        counts_pattern = [2, 4, 2, 4, 2, 4] # Pola Zigzag
+        counts_pattern = [2, 4, 2, 4, 2, 4]
 
-        # Visualisasikan pola sebagai grafik garis di belakang kelereng
         axes = Axes(
             x_range=[0, 7, 1],
             y_range=[0, 6, 1],
@@ -142,17 +118,13 @@ class Scene02(Scene):
 
         points = []
         for i, count in enumerate(counts_pattern):
-            # Tampilkan kelereng
             new_stack = get_marbles(count, color=RED).move_to(axes.c2p(i+1, count/2))
-            # Tampilkan titik pada grafik
             dot = Dot(point=axes.c2p(i+1, count), color=YELLOW)
             points.append(dot.get_center())
-
             self.add(new_stack, dot)
             self.wait(0.3)
             self.remove(new_stack)
 
-        # Gambar garis yang menghubungkan titik
         path = VMobject()
         path.set_points_as_corners(points)
         path.set_color(YELLOW)
@@ -163,5 +135,4 @@ class Scene02(Scene):
         self.play(FadeIn(prediction_text, scale=1.5))
         self.wait(2)
 
-        # Final Fade
         self.play(FadeOut(Group(*self.mobjects)))
