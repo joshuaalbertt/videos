@@ -1,11 +1,6 @@
 from manim import *
 import numpy as np
 
-config.pixel_height = 1080
-config.pixel_width = 1920
-config.frame_height = 8.0
-config.frame_width = 14.22
-
 class Part2Neuron(Scene):
     def construct(self):
         self.camera.background_color = "#000000"
